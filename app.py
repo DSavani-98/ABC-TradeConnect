@@ -1,9 +1,7 @@
 from flask import Flask, jsonify
 from models import db, Users
 from flask_jwt_extended import JWTManager
-
-
-
+from flask_wtf.csrf import CSRFProtect
 
 
 def create_app():
@@ -17,6 +15,9 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = 'ABCEventTech@2024'  # Change this to a real, secure secret key
 
     db.init_app(app)   # Initialize the app for use with this database setup
+
+    # Enable CSRF Protection for Future Front-End Integration
+    csrf = CSRFProtect(app)
 
     # Initialize the JWT manager
     jwt = JWTManager(app)   
