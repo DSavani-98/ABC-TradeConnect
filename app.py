@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flask_wtf.csrf import CSRFProtect
 
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -16,8 +17,11 @@ def create_app():
 
     db.init_app(app)   # Initialize the app for use with this database setup
 
+    # from auth import init_auth_routes
+    # init_auth_routes(app)  # Ensure this is correctly integrating your routes
+
     # Enable CSRF Protection for Future Front-End Integration
-    csrf = CSRFProtect(app)
+    # csrf = CSRFProtect(app)
 
     # Initialize the JWT manager
     jwt = JWTManager(app)   
@@ -43,3 +47,5 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
+
+

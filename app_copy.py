@@ -1,33 +1,47 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify
+from models import db, Users
+from flask_jwt_extended import JWTManager
+from flask_wtf.csrf import CSRFProtect
 
-app = Flask(__name__)
 
-# Configure the PostgreSQL database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dhruv_abctech:dABCtech1912@localhost/abc_mart'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def create_app():
+    app = Flask(__name__)
 
-# Initialize the database
-db = SQLAlchemy(app)
+    # Configuring the database connection
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dhruv_abctech:dABCtech1912@localhost/abc_mart'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# # Define the database schema for the User table
-class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    # Configure the secret key for JWT
+    app.config['JWT_SECRET_KEY'] = 'ABCEventTech@2024'  # Change this to a real, secure secret key
 
-    def __repr__(self):
-        return '<Users %r>' % self.username
+    db.init_app(app)   # Initialize the app for use with this database setup
 
-# Route to create the database tables
-@app.route('/init_db')
-def init_db():
-    db.create_all()
-    return "Database tables created!"
+    # Enable CSRF Protection for Future Front-End Integration
+    # csrf = CSRFProtect(app)
 
-@app.route('/')
-def init():
-    return "Hello World!"
+    # Initialize the JWT manager
+    jwt = JWTManager(app)   
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            'msg': 'Your token has expired',
+            'err': 'token_expired'
+        }), 401
+
+    @app.route('/init_db')
+    def init_db():
+        db.create_all()
+        return "Database tables created!"
+
+    @app.route('/')
+    def home():
+        return 'Welcome to ABCMart!!!'
+
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
+
+
